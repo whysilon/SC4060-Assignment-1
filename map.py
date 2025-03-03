@@ -1,4 +1,4 @@
-class Map:
+class Maze:
     # Initialize Map with 0s
     def __init__(self, rows, cols):
         self.rows = rows
@@ -12,7 +12,7 @@ class Map:
 
 def createLayoutwithInput(row,col):
     print("Initializing the map layout")
-    layout = Map(row,col)
+    layout = Maze(row,col)
     while True:
         # Get the type of node
         userInput = input("Enter the type of node ('S' for start, 'W' for Wall, 'P' for Plus, 'M' for Minus, 'E' to end): ")
@@ -27,7 +27,7 @@ def createLayoutwithInput(row,col):
     
 def createLayoutfromList(row, col, plan):
     print("Initializing the map layout")
-    layout = Map(row,col)
+    layout = Maze(row,col)
     for x,y,node in plan:
         layout.layout[x][y] = node
 
@@ -35,5 +35,5 @@ def createLayoutfromList(row, col, plan):
 
 if __name__ == "__main__":
     rows, cols = 5, 5  # Define the size of the map
-    map_layout = Map(rows, cols)
+    map_layout = Maze(rows, cols)
     map_layout.display()
