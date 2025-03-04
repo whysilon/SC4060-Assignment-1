@@ -10,22 +10,22 @@ class Maze:
             print(" ".join(map(str, row)))
 
 
-def createLayoutwithInput(row,col):
+def create_layout_with_input(row,col):
     print("Initializing the map layout")
     layout = Maze(row,col)
     while True:
         # Get the type of node
-        userInput = input("Enter the type of node ('S' for start, 'W' for Wall, 'P' for Plus, 'M' for Minus, 'E' to end): ")
+        user_input = input("Enter the type of node ('S' for start, 'W' for Wall, 'P' for Plus, 'M' for Minus, 'E' to end): ")
         # Get the coordinates
-        if (userInput == 'E'):
+        if (user_input == 'E'):
             break
-        coordInput = input("Enter the Coordinates (0-indexed): ")
-        x, y = map(int, coordInput.split())
+        coord_input = input("Enter the Coordinates (0-indexed): ")
+        x, y = map(int, coord_input.split())
         # Set the node type:
-        layout.layout[x][y] = userInput
+        layout.layout[x][y] = user_input
     return layout
     
-def createLayoutfromList(row, col, plan):
+def create_layout_from_list(row, col, plan):
     print("Initializing the map layout")
     layout = Maze(row,col)
     for x,y,node in plan:

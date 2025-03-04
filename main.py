@@ -1,5 +1,5 @@
 import map
-
+import agent as a
 ASSIGNMENT_LAYOUT = [
     (0, 0, 'P'),
     (0, 1, 'W'),
@@ -20,5 +20,7 @@ ASSIGNMENT_LAYOUT = [
     (4, 4, 'M')
 ]
 # Initialize the map layout
-assignmentMap = map.createLayoutfromList(6, 6, ASSIGNMENT_LAYOUT)
-assignmentMap.display()
+assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
+assignment_map.display()
+
+agent = a.Agent(assignment_map,3,2)
