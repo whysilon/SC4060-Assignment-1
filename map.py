@@ -3,7 +3,7 @@ class Maze:
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
-        self.layout = [[0 for _ in range(cols)] for _ in range(rows)]
+        self.layout = [['N' for _ in range(cols)] for _ in range(rows)]
 
     def display(self):
         for row in self.layout:
