@@ -25,4 +25,6 @@ ASSIGNMENT_LAYOUT = [
 assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
 assignment_map.display()
 
-agent = a.Agent(assignment_map,3,2)
+agent = a.Agent(assignment_map,3,5)
+
+print(agent.calculate_utility())
