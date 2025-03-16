@@ -1,6 +1,11 @@
 import map
 import agent as a
 # Layout given by assignment
+# G = +1
+# W = wall
+# B = -1
+# S = start
+
 ASSIGNMENT_LAYOUT = [
     (0, 0, 'G'),
     (0, 1, 'W'),
@@ -26,5 +31,4 @@ assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
 assignment_map.display()
 
 agent = a.Agent(assignment_map,3,5)
-
-print(agent.calculate_utility())
+agent.value_iteration(100,0)
