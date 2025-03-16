@@ -75,4 +75,6 @@ assignment_map.display()
 
 # Policy Iteration
 policy_iter_agent = a.Agent(assignment_map,3,2)
-policy_iter_agent.policy_iteration(10, 0.1)
+policy = policy_iter_agent.policy_iteration(100, 0.1)
+_ , maxValueMap = policy_iter_agent.determine_policy()
+plot_policy(policy_iter_agent, policy_iter_agent.policy_map, maxValueMap, "Optimal Policy Map")
