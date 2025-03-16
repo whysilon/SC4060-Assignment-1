@@ -80,7 +80,6 @@ class Agent:
         # Calculate each utility of next possible state and
         # Using Bellman equation to get actual utility of state
         state_utility = []
-        print(self.position_x, self.position_y)
         for action in CARDINAL_DIRECTIONS:
             reward = self.get_reward(self.position_x, self.position_y, action)
             utility = self.get_utility(utility_matrix,self.position_x, self.position_y, action)
@@ -151,19 +150,24 @@ class Agent:
                     self.position_x, self.position_y = row, col
                     if self.maze.layout[row][col] == 'W':
                         # Skip Value Iteration if tile is a wall
+                        for dir in range(len(CARDINAL_DIRECTIONS)):
+                            # Set all values to negative inf
+                            initial_utility[row][col][dir] = -np.inf
                         continue
                     new_utility = self.calculate_utility(initial_utility)
                     for dir in range(len(CARDINAL_DIRECTIONS)):
-                        delta = max(delta, abs(initial_utility[row][col][dir]) - new_utility[dir])
+                        delta = max(delta, abs((initial_utility[row][col][dir]) - new_utility[dir]))
                         initial_utility[row][col][dir] = new_utility[dir]
 
             self.utility_matrix = initial_utility
             if delta < epsilon:
-                print(f"Converged after {iteration} iterations.")
+                print(f"Converged after {iteration} iterations. Delta: {delta}")
                 break
-        print(self.utility_matrix)
+        # print(self.utility_matrix)
         self.determine_policy()
         
+    def policy_itertaion(self, iterations, epsilon):
+        pass
 
     def determine_policy(self):
         #Initialise map of same size
@@ -172,7 +176,8 @@ class Agent:
         for row in range(self.maze.rows):
             for col in range(self.maze.cols):
                 # print(self.utility_matrix[row][col])
+                if np.isneginf(np.argmax(self.utility_matrix[row][col])):
+                    continue
                 policy[row][col] = CARDINAL_DIRECTIONS[np.argmax(self.utility_matrix[row][col])]
                 value_map[row][col] = round(max(self.utility_matrix[row][col]),3)
-        print(policy)
-        print(value_map)
+        return policy, value_map
