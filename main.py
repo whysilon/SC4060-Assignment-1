@@ -68,13 +68,13 @@ assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
 assignment_map.display()
 
 # Value Iteration Agent
-# value_iter_agent = a.Agent(assignment_map,3,2)
-# value_iter_agent.value_iteration(1000,0.1)
-# policy, maxValueMap = value_iter_agent.determine_policy()
-# plot_policy(value_iter_agent, policy, maxValueMap, "Optimal Policy Map")
+value_iter_agent = a.Agent(assignment_map,3,2)
+value_iter_agent.value_iteration(1000,0.1)
+policy, maxValueMap = value_iter_agent.determine_policy()
+plot_policy(value_iter_agent, policy, maxValueMap, "Optimal Policy Map")
 
 # Policy Iteration
-policy_iter_agent = a.Agent(assignment_map,3,2)
-policy = policy_iter_agent.policy_iteration(100, 0.1)
-_ , maxValueMap = policy_iter_agent.determine_policy()
-plot_policy(policy_iter_agent, policy_iter_agent.policy_map, maxValueMap, "Optimal Policy Map")
+# policy_iter_agent = a.Agent(assignment_map,3,2)
+# policy = policy_iter_agent.policy_iteration(2, 0.01)
+# _ , maxValueMap = policy_iter_agent.determine_policy()
+# plot_policy(policy_iter_agent, policy_iter_agent.policy_map, maxValueMap, "Optimal Policy Map")
