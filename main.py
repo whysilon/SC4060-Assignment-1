@@ -63,18 +63,35 @@ def plot_policy(agent: a.Agent, policy_map, value_map, title):
     plt.title(title)
     plt.show()
 
+def plot_history(utility_history, agent, title):
+    for (row, col), utilities in utility_history.items():
+        if agent.maze.layout[row][col] == 'W':
+            continue
+        plt.plot(range(len(utilities)), utilities, label=f"({row},{col})", alpha=0.5)
+
+    # Graph formatting
+    plt.xlabel("Iteration")
+    plt.ylabel("Utility Value")
+    plt.title(title)
+    plt.legend(loc="lower right", fontsize="xx-small", ncol=4)  # Small legend to fit all labels
+    plt.grid()
+    plt.show()
+                
+
 # Initialize the map layout
 assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
 assignment_map.display()
 
 # Value Iteration Agent
-value_iter_agent = a.Agent(assignment_map,3,2)
-value_iter_agent.value_iteration(1000,0.1)
-policy, maxValueMap = value_iter_agent.determine_policy()
-plot_policy(value_iter_agent, policy, maxValueMap, "Optimal Policy Map")
-
+# value_iter_agent = a.Agent(assignment_map,3,2)
+# value_u_map, value_u_history = value_iter_agent.value_iteration(1000,0.001)
+# value_p_map, value_value_map = value_iter_agent.determine_policy(value_u_map)
+# plot_policy(value_iter_agent, value_p_map, value_value_map, "Optimal Policy Map for Value iteration")
+# plot_history(value_u_history, value_iter_agent, "Utility Value History for Value Iteration")
 # Policy Iteration
-# policy_iter_agent = a.Agent(assignment_map,3,2)
-# policy = policy_iter_agent.policy_iteration(2, 0.01)
-# _ , maxValueMap = policy_iter_agent.determine_policy()
-# plot_policy(policy_iter_agent, policy_iter_agent.policy_map, maxValueMap, "Optimal Policy Map")
+policy_iter_agent = a.Agent(assignment_map,3,2)
+policy_u_map, policy_p_map, policy_u_history = policy_iter_agent.policy_iteration(1000, 0.001)
+# The policy should be the same as the policy extracted from policy iteration
+policy_p_map , policy_value_map = policy_iter_agent.determine_policy(policy_u_map)
+plot_policy(policy_iter_agent, policy_p_map, policy_value_map, "Optimal Policy Map for Policy Iteration")
+plot_history(policy_u_history, policy_iter_agent, "Utility Value History for Policy Iteration")
