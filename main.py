@@ -28,6 +28,32 @@ ASSIGNMENT_LAYOUT = [
     (4, 4, 'B')
 ]
 
+EXTRA_LAYOUT = [
+    (0, 0, 'G'),
+    (0, 2, 'G'),
+    (2, 0, 'G'),
+    (1, 1, 'W'),
+    (2, 2, 'B'),
+    (1, 3, 'W'),
+    (1, 4, 'W'),
+    (2, 3, 'B'),
+    (3, 2, 'B'),
+    (4, 2, 'W'),
+    (5, 2, 'G'),
+    (5, 1, 'W'),
+    (3, 0, 'W'),
+    (6, 0, 'B'),
+    (4, 0, 'G'),
+    (5, 0, 'G'),
+    (5, 4, 'B'),
+    (5, 5, 'W'),
+    (5, 6, 'G'),
+    (5, 7, 'W'),
+    (6, 8, 'B'),
+    (3, 8, 'W'),
+    (4, 8, 'G'),
+]
+
 def plot_policy(agent: a.Agent, policy_map, value_map, title):
     arrow_map = {
         'North': '↑',  
@@ -79,9 +105,12 @@ def plot_history(utility_history, agent, title):
                 
 
 # Initialize the map layout
-assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
-assignment_map.display()
+# assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
+# assignment_map.display()
 
+# Init Extra Map 
+extra_map = map.create_layout_from_list(7, 9, EXTRA_LAYOUT)
+extra_map.display()
 # Value Iteration Agent
 # value_iter_agent = a.Agent(assignment_map,3,2)
 # value_u_map, value_u_history = value_iter_agent.value_iteration(1000,0.001)
@@ -89,9 +118,9 @@ assignment_map.display()
 # plot_policy(value_iter_agent, value_p_map, value_value_map, "Optimal Policy Map for Value iteration")
 # plot_history(value_u_history, value_iter_agent, "Utility Value History for Value Iteration")
 # Policy Iteration
-policy_iter_agent = a.Agent(assignment_map,3,2)
+policy_iter_agent = a.Agent(extra_map,3,2)
 policy_u_map, policy_p_map, policy_u_history = policy_iter_agent.policy_iteration(1000, 0.001)
 # The policy should be the same as the policy extracted from policy iteration
 policy_p_map , policy_value_map = policy_iter_agent.determine_policy(policy_u_map)
 plot_policy(policy_iter_agent, policy_p_map, policy_value_map, "Optimal Policy Map for Policy Iteration")
-plot_history(policy_u_history, policy_iter_agent, "Utility Value History for Policy Iteration")
+# plot_history(policy_u_history, policy_iter_agent, "Utility Value History for Policy Iteration")

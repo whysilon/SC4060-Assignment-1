@@ -32,7 +32,7 @@ class Agent:
 
     def initalise_utility_matrix(self):
         # Initialize the utility matrix with zeroes
-        utility_matrix = np.full((self.maze.cols, self.maze.rows), None)
+        utility_matrix = np.full((self.maze.rows, self.maze.cols), None)
         moveset_utility = np.zeros(len(CARDINAL_DIRECTIONS))
         for i in range(self.maze.rows):
             for j in range(self.maze.cols):
@@ -41,7 +41,7 @@ class Agent:
 
     def initialise_policy_map(self):
         # Initialize policy map with their first possible move
-        policy_map = np.full((self.maze.cols, self.maze.rows), CARDINAL_DIRECTIONS[0])
+        policy_map = np.full((self.maze.rows, self.maze.cols), CARDINAL_DIRECTIONS[0])
         for row in range(self.maze.rows):
             for col in range(self.maze.cols):
                 if self.maze.layout[row][col] == 'W':
@@ -263,8 +263,8 @@ class Agent:
     def determine_policy(self, utility_matrix):
         #Initialise map of same size
         # print(utility_matrix)
-        policy = np.full((self.maze.cols, self.maze.rows), None)
-        value_map = np.full((self.maze.cols, self.maze.rows), None)
+        policy = np.full((self.maze.rows, self.maze.cols), None)
+        value_map = np.full((self.maze.rows, self.maze.cols), None)
         for row in range(self.maze.rows):
             for col in range(self.maze.cols):
                 # print(utility_matrix[row][col])
