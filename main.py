@@ -113,15 +113,15 @@ assignment_map.display()
 # extra_map.display()
 
 # Value Iteration Agent
-# value_iter_agent = a.Agent(assignment_map,3,2)
-# value_u_map, value_u_history = value_iter_agent.value_iteration(1000,0.001)
-# value_p_map, value_value_map = value_iter_agent.determine_policy(value_u_map)
-# plot_policy(value_iter_agent, value_p_map, value_value_map, "Optimal Policy Map for Value iteration")
-# plot_history(value_u_history, value_iter_agent, "Utility Value History for Value Iteration")
+value_iter_agent = a.Agent(assignment_map,3,2)
+value_u_map, value_u_history = value_iter_agent.value_iteration(1000,0.001)
+value_p_map, value_value_map = value_iter_agent.determine_policy(value_u_map)
+plot_policy(value_iter_agent, value_p_map, value_value_map, "Optimal Policy Map for Value iteration")
+plot_history(value_u_history, value_iter_agent, "Utility Value History for Value Iteration")
 
-# Policy Iteration
+# Policy Iteration Agent
 policy_iter_agent = a.Agent(assignment_map,3,2)
-policy_u_map, policy_p_map, policy_u_history = policy_iter_agent.policy_iteration(100, 0.001)
+policy_u_map, policy_p_map, policy_u_history = policy_iter_agent.policy_iteration(1000, 0.001, True)
 # The policy should be the same as the policy extracted from policy iteration
 policy_p_map , policy_value_map = policy_iter_agent.determine_policy(policy_u_map)
 plot_policy(policy_iter_agent, policy_p_map, policy_value_map, "Optimal Policy Map for Policy Iteration")

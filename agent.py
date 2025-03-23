@@ -180,7 +180,7 @@ class Agent:
                 break
         return utility_matrix, utility_history
         
-    def policy_iteration(self, iterations, epsilon):
+    def policy_iteration(self, iterations, epsilon, one_iteration: bool):
         utility_matrix = self.initalise_utility_matrix()
         policy_map = self.initialise_policy_map()
         utility_history = {}
@@ -190,7 +190,7 @@ class Agent:
         for iteration in range(iterations):
             policy_changed = False
             # Step 1: Policy Evaluation => Computing Utility of all states with policy's move
-            utility_matrix, policy_map, utility_history = self.policy_evaluation(epsilon, utility_matrix, policy_map, utility_history   )
+            utility_matrix, policy_map, utility_history = self.policy_evaluation(epsilon, utility_matrix, policy_map, utility_history, one_iteration )
                 
             # Step 2: Policy Improvement => Calculate new policy based on updated utilities
             for row in range(self.maze.rows):
@@ -233,7 +233,7 @@ class Agent:
                 break
         return utility_matrix, policy_map, utility_history
             
-    def policy_evaluation(self, epsilon, utility_matrix, policy_map, utility_history):
+    def policy_evaluation(self, epsilon, utility_matrix, policy_map, utility_history, one_iteration):
 
         while True:
             new_matrix = utility_matrix.copy()
@@ -254,6 +254,7 @@ class Agent:
                     old_value = new_matrix[row][col][action_pos]
                     new_value = 0
                     reward = self.get_reward(row, col)
+                    # Get the Q value of the next state based on policy
                     new_value += PROBABILITY_OF_SUCCESS * self.get_q_value(utility_matrix, policy_map, row, col, action)
                     failed_action_left_pos, failed_action_right_pos = (action_pos - 1) % 4, (action_pos + 1) % 4
                     if self.check_move(CARDINAL_DIRECTIONS[failed_action_left_pos], row, col):
@@ -274,6 +275,8 @@ class Agent:
                     action_pos = CARDINAL_DIRECTIONS.index(action)
                     utility_history[(row, col)].append(utility_matrix[row][col][action_pos])
             if(delta < epsilon):
+                break
+            if(one_iteration):
                 break
         return utility_matrix, policy_map, utility_history
     
