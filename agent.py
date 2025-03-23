@@ -197,10 +197,13 @@ class Agent:
                 for col in range(self.maze.cols):
                     if self.maze.layout[row][col] == 'W':
                         continue
+                    # Get old action
                     old_action = policy_map[row][col]
                     old_action_pos = CARDINAL_DIRECTIONS.index(old_action)
                     new_values = []
                     possible_moves = self.get_possible_moves(row, col)
+                    # Check if new action dervies better value
+                    # than old action
                     for action in CARDINAL_DIRECTIONS:
                         action_pos = CARDINAL_DIRECTIONS.index(action)
                         new_value = 0
@@ -220,6 +223,7 @@ class Agent:
                             new_values.append(new_value)
                         else:
                             new_values.append(-np.inf)
+                    # If new action better, update policy
                     if utility_matrix[row][col][old_action_pos] < max(new_values):
                         max_value_action_pos = np.argmax(new_values)
                         policy_map[row][col] = CARDINAL_DIRECTIONS[max_value_action_pos]
@@ -238,7 +242,6 @@ class Agent:
         while True:
             new_matrix = utility_matrix.copy()
             delta = 0.0
-
             for row in range(self.maze.rows):
                 for col in range(self.maze.cols):
                     # Go through the policy first
@@ -270,6 +273,7 @@ class Agent:
                     new_matrix[row][col][action_pos] = new_value
                     delta = max(delta, abs(old_value - new_value))
             utility_matrix[:] = new_matrix
+            # Append utility of all states of this iteration to utility history
             for row in range(self.maze.rows):
                 for col in range(self.maze.cols):
                     action = policy_map[row][col]
@@ -278,6 +282,7 @@ class Agent:
             if(delta < epsilon):
                 break
             if(one_iteration):
+                # If one iteration is True, break when one_iteration == True
                 break
         return utility_matrix, policy_map, utility_history
     
