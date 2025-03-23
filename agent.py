@@ -104,12 +104,8 @@ class Agent:
         else:
             return utility_matrix[x][y]
     
-    def get_reward(self, x, y, action):
-        if self.check_move(action, x, y):
-            new_x, new_y = self.move(action, x, y)
-            return REWARD[self.maze.layout[new_x][new_y]]
-        else:
-            return REWARD[self.maze.layout[x][y]]
+    def get_reward(self, x, y):
+        return REWARD[self.maze.layout[x][y]]
     
     def update_position(self, action):
         action_pos = CARDINAL_DIRECTIONS.index(action)
@@ -135,26 +131,32 @@ class Agent:
             for col in range(self.maze.cols):
                 utility_history[(row, col)] = []
         for iteration in range(iterations):
-            initial_utility = utility_matrix.copy()
+            new_matrix = utility_matrix.copy()
             # delta is the actual change in utlity of any state
             delta = 0
+            # Iterate through all states
             for row in range(self.maze.rows):
                 for col in range(self.maze.cols):
                     if self.maze.layout[row][col] == 'W':
                         # Skip Value Iteration if tile is a wall
                         for dir in range(len(CARDINAL_DIRECTIONS)):
                             # Set all values to negative inf
-                            initial_utility[row][col][dir] = -np.inf
+                            new_matrix[row][col][dir] = -np.inf
                         continue
                     state_utility = []
                     possible_moves = self.get_possible_moves(row, col)
+                    # Calculate utility of all possible moves
                     for action in CARDINAL_DIRECTIONS:
                         utility = 0
                         action_pos = CARDINAL_DIRECTIONS.index(action)
+                        # If the move is legal
                         if action in possible_moves:
-                            reward = self.get_reward(row, col, action)
+                            # Calculate utility of the move
+                            reward = self.get_reward(row, col)
+                            # Calculate the next state utility if move is successful
                             next_utility = self.get_next_utility(utility_matrix, row, col, action)
                             utility += PROBABILITY_OF_SUCCESS * max(next_utility)
+                            # Calculate the next state utility if move is unsuccessful
                             next_utility = self.get_next_utility(utility_matrix, row, col, CARDINAL_DIRECTIONS[(action_pos + 1) % 4])
                             utility += PROBABILITY_OF_FAILURE * max(next_utility)
                             next_utility =  self.get_next_utility(utility_matrix, row, col, CARDINAL_DIRECTIONS[(action_pos - 1) % 4])
@@ -162,12 +164,14 @@ class Agent:
                             total = reward + (DISCOUNT_FACTOR * utility)
                             state_utility.append(total)
                         else:
+                            # Else set utility to 0
                             state_utility.append(0)
                     for dir in range(len(CARDINAL_DIRECTIONS)):
-                        delta = max(delta, abs((initial_utility[row][col][dir]) - state_utility[dir]))
-                        initial_utility[row][col][dir] = state_utility[dir]
-
-            utility_matrix[:] = initial_utility
+                        delta = max(delta, abs((new_matrix[row][col][dir]) - state_utility[dir]))
+                        new_matrix[row][col][dir] = state_utility[dir]
+            # Set the utility matrix to the new values
+            utility_matrix[:] = new_matrix
+            # Keep track of the utility matrix at every iteration
             for row in range(self.maze.rows):
                 for col in range(self.maze.cols):
                     utility_history[(row, col)].append(max(utility_matrix[row][col]))
@@ -175,7 +179,6 @@ class Agent:
                 print(f"Converged after {iteration} iterations. Delta: {delta}")
                 break
         return utility_matrix, utility_history
-        # print(utility_matrix)
         
     def policy_iteration(self, iterations, epsilon):
         utility_matrix = self.initalise_utility_matrix()
@@ -195,22 +198,34 @@ class Agent:
                     if self.maze.layout[row][col] == 'W':
                         continue
                     old_action = policy_map[row][col]
+                    old_action_pos = CARDINAL_DIRECTIONS.index(old_action)
                     new_values = []
                     possible_moves = self.get_possible_moves(row, col)
                     for action in CARDINAL_DIRECTIONS:
+                        action_pos = CARDINAL_DIRECTIONS.index(action)
+                        new_value = 0
                         if action in possible_moves:
-                            new_value = self.get_q_value(utility_matrix, policy_map, row, col , action)
+                            reward = self.get_reward(row, col)
+                            new_value += PROBABILITY_OF_SUCCESS * self.get_q_value(utility_matrix, policy_map, row, col, action)
+                            failed_action_left_pos, failed_action_right_pos = (action_pos - 1) % 4, (action_pos + 1) % 4
+                            if self.check_move(CARDINAL_DIRECTIONS[failed_action_left_pos], row, col):
+                                new_value += PROBABILITY_OF_FAILURE * self.get_q_value(utility_matrix, policy_map, row, col, CARDINAL_DIRECTIONS[failed_action_left_pos])
+                            else:
+                                new_value += PROBABILITY_OF_FAILURE * utility_matrix[row][col][action_pos]
+                            if self.check_move(CARDINAL_DIRECTIONS[failed_action_right_pos], row, col):
+                                new_value += PROBABILITY_OF_FAILURE * self.get_q_value(utility_matrix, policy_map, row, col, CARDINAL_DIRECTIONS[failed_action_right_pos])
+                            else:
+                                new_value += PROBABILITY_OF_FAILURE * utility_matrix[row][col][action_pos]
+                            new_value = reward + DISCOUNT_FACTOR * new_value
                             new_values.append(new_value)
                         else:
                             new_values.append(-np.inf)
-                    max_value_action_pos = np.argmax(new_values)
-                    policy_map[row][col] = CARDINAL_DIRECTIONS[max_value_action_pos]
+                    if utility_matrix[row][col][old_action_pos] < max(new_values):
+                        max_value_action_pos = np.argmax(new_values)
+                        policy_map[row][col] = CARDINAL_DIRECTIONS[max_value_action_pos]
                     if policy_map[row][col] != old_action:
                         policy_changed = True
                     else:
-                        # print(row,col)
-                        # print(policy_map[row][col], old_action)
-                        # print(new_values)
                         pass
 
             if not policy_changed:
@@ -221,25 +236,38 @@ class Agent:
     def policy_evaluation(self, epsilon, utility_matrix, policy_map, utility_history):
 
         while True:
-            initial_utility = utility_matrix.copy()
+            new_matrix = utility_matrix.copy()
             delta = 0.0
 
             for row in range(self.maze.rows):
                 for col in range(self.maze.cols):
                     # Go through the policy first
+                    # This is the action the agent will take
                     action = policy_map[row][col]
                     if self.maze.layout[row][col] == 'W':
                             # Skip if current tile is a wall
                             for dir in range(len(CARDINAL_DIRECTIONS)):
                                 # Set all values to negative inf
-                                initial_utility[row][col][dir] = -np.inf
+                                new_matrix[row][col][dir] = -np.inf
                             continue
                     action_pos = CARDINAL_DIRECTIONS.index(action)
-                    old_value = initial_utility[row][col][action_pos]
-                    new_value = self.get_q_value(utility_matrix, policy_map, row, col, action)
-                    initial_utility[row][col][action_pos] = new_value
+                    old_value = new_matrix[row][col][action_pos]
+                    new_value = 0
+                    reward = self.get_reward(row, col)
+                    new_value += PROBABILITY_OF_SUCCESS * self.get_q_value(utility_matrix, policy_map, row, col, action)
+                    failed_action_left_pos, failed_action_right_pos = (action_pos - 1) % 4, (action_pos + 1) % 4
+                    if self.check_move(CARDINAL_DIRECTIONS[failed_action_left_pos], row, col):
+                        new_value += PROBABILITY_OF_FAILURE * self.get_q_value(utility_matrix, policy_map, row, col, CARDINAL_DIRECTIONS[failed_action_left_pos])
+                    else:
+                        new_value += PROBABILITY_OF_FAILURE * new_matrix[row][col][action_pos]
+                    if self.check_move(CARDINAL_DIRECTIONS[failed_action_right_pos], row, col):
+                        new_value += PROBABILITY_OF_FAILURE * self.get_q_value(utility_matrix, policy_map, row, col, CARDINAL_DIRECTIONS[failed_action_right_pos])
+                    else:
+                        new_value += PROBABILITY_OF_FAILURE * new_matrix[row][col][action_pos]
+                    new_value = reward + (DISCOUNT_FACTOR * new_value)
+                    new_matrix[row][col][action_pos] = new_value
                     delta = max(delta, abs(old_value - new_value))
-            utility_matrix[:] = initial_utility
+            utility_matrix[:] = new_matrix
             for row in range(self.maze.rows):
                 for col in range(self.maze.cols):
                     action = policy_map[row][col]
@@ -247,17 +275,15 @@ class Agent:
                     utility_history[(row, col)].append(utility_matrix[row][col][action_pos])
             if(delta < epsilon):
                 break
-        # print(utility_matrix)
-        # print(policy_map)
         return utility_matrix, policy_map, utility_history
     
     def get_q_value(self, utility_matrix, policy_map, x, y, action):
+        # Get the Q value of the next state with based on the policy
         next_x, next_y = self.move(action, x, y)
         next_state_action = policy_map[next_x][next_y]
         next_state = self.get_next_utility(utility_matrix, x, y, action)
         next_utility = next_state[CARDINAL_DIRECTIONS.index(next_state_action)]
-        reward = self.get_reward(x, y, action)
-        new_value = reward + (DISCOUNT_FACTOR * next_utility)
+        new_value = DISCOUNT_FACTOR * next_utility
         return new_value
 
     def determine_policy(self, utility_matrix):
