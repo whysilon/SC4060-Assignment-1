@@ -234,7 +234,7 @@ class Agent:
         return utility_matrix, policy_map, utility_history
             
     def policy_evaluation(self, epsilon, utility_matrix, policy_map, utility_history, one_iteration):
-
+        # Policy Evaluation
         while True:
             new_matrix = utility_matrix.copy()
             delta = 0.0
@@ -256,6 +256,7 @@ class Agent:
                     reward = self.get_reward(row, col)
                     # Get the Q value of the next state based on policy
                     new_value += PROBABILITY_OF_SUCCESS * self.get_q_value(utility_matrix, policy_map, row, col, action)
+                    # If the move failed, calculate Q value of next state based on failed action
                     failed_action_left_pos, failed_action_right_pos = (action_pos - 1) % 4, (action_pos + 1) % 4
                     if self.check_move(CARDINAL_DIRECTIONS[failed_action_left_pos], row, col):
                         new_value += PROBABILITY_OF_FAILURE * self.get_q_value(utility_matrix, policy_map, row, col, CARDINAL_DIRECTIONS[failed_action_left_pos])
@@ -291,14 +292,24 @@ class Agent:
 
     def determine_policy(self, utility_matrix):
         #Initialise map of same size
-        # print(utility_matrix)
         policy = np.full((self.maze.rows, self.maze.cols), None)
         value_map = np.full((self.maze.rows, self.maze.cols), None)
         for row in range(self.maze.rows):
             for col in range(self.maze.cols):
-                # print(utility_matrix[row][col])
                 if np.isneginf(np.argmax(utility_matrix[row][col])):
+                    # Skip if tile is a wall
                     continue
                 policy[row][col] = CARDINAL_DIRECTIONS[np.argmax(utility_matrix[row][col])]
                 value_map[row][col] = round(max(utility_matrix[row][col]),3)
         return policy, value_map
+    
+    def determine_total_states(self):
+        # Calculate total number of states and actions
+        total_states = 0
+        total_actions = 0
+        for row in range(self.maze.rows):
+            for col in range(self.maze.cols):
+                if self.maze.layout[row][col] != 'W':
+                    total_states += 1
+                    total_actions += len(self.get_possible_moves(row, col))
+        return total_states, total_actions

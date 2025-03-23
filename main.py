@@ -27,7 +27,7 @@ ASSIGNMENT_LAYOUT = [
     (4, 3, 'W'),
     (4, 4, 'B')
 ]
-
+# Part 2
 EXTRA_LAYOUT = [
     (0, 0, 'G'),
     (0, 2, 'G'),
@@ -52,6 +52,17 @@ EXTRA_LAYOUT = [
     (6, 8, 'B'),
     (3, 8, 'W'),
     (4, 8, 'G'),
+    (0, 6, 'W'),
+    (1, 6, 'B'),
+    (2, 6, 'G'),
+    (3, 6, 'B'),
+    (2, 5, 'B'),
+    (2, 7, 'B'),
+    (0, 8, 'G'),
+    (3, 4, 'W'),
+    (2, 4, 'W'),
+    (4, 4, 'S'),
+    
 ]
 
 def plot_policy(agent: a.Agent, policy_map, value_map, title):
@@ -73,11 +84,13 @@ def plot_policy(agent: a.Agent, policy_map, value_map, title):
         for c in range(agent.maze.cols):
             action = policy_map[r][c]
             tile_colour = colour_map[agent.maze.layout[r][c]]
+            # Colour tile
             ax.add_patch(plt.Rectangle((c - 0.5, agent.maze.rows - 1 - r - 0.5), 1, 1, color=tile_colour))
             if agent.maze.layout[r][c] == 'W':
                 # If Wall, dont add arrow onto tile
                 continue
             if action in arrow_map:
+                # Translate action to arrow
                 ax.text(c, agent.maze.rows - 1 - r, arrow_map[action], ha='center', va='center', fontsize=14, color='black')
                 ax.text(c, agent.maze.rows - 1 - r - 0.2, value_map[r][c],ha='center', va='center', fontsize=10, color='black')
     ax.set_xticks(np.arange(agent.maze.cols))
@@ -99,7 +112,7 @@ def plot_history(utility_history, agent, title):
     plt.xlabel("Iteration")
     plt.ylabel("Utility Value")
     plt.title(title)
-    plt.legend(loc="lower right", fontsize="xx-small", ncol=4)  # Small legend to fit all labels
+    plt.legend(loc="upper left", fontsize="xx-small", ncol=4)  # Small legend to fit all labels
     plt.grid()
     plt.show()
                 
@@ -109,20 +122,19 @@ assignment_map = map.create_layout_from_list(6, 6, ASSIGNMENT_LAYOUT)
 assignment_map.display()
 
 # Init Extra Map 
-# extra_map = map.create_layout_from_list(7, 9, EXTRA_LAYOUT)
-# extra_map.display()
+extra_map = map.create_layout_from_list(7, 9, EXTRA_LAYOUT)
+extra_map.display()
 
 # Value Iteration Agent
-value_iter_agent = a.Agent(assignment_map,3,2)
+value_iter_agent = a.Agent(extra_map,3,2)
 value_u_map, value_u_history = value_iter_agent.value_iteration(1000,0.001)
 value_p_map, value_value_map = value_iter_agent.determine_policy(value_u_map)
 plot_policy(value_iter_agent, value_p_map, value_value_map, "Optimal Policy Map for Value iteration")
 plot_history(value_u_history, value_iter_agent, "Utility Value History for Value Iteration")
-
+print(value_iter_agent.determine_total_states())
 # Policy Iteration Agent
-policy_iter_agent = a.Agent(assignment_map,3,2)
+policy_iter_agent = a.Agent(extra_map,3,2)
 policy_u_map, policy_p_map, policy_u_history = policy_iter_agent.policy_iteration(1000, 0.001, True)
-# The policy should be the same as the policy extracted from policy iteration
 policy_p_map , policy_value_map = policy_iter_agent.determine_policy(policy_u_map)
 plot_policy(policy_iter_agent, policy_p_map, policy_value_map, "Optimal Policy Map for Policy Iteration")
-plot_history(policy_u_history, policy_iter_agent, "Utility Value History for Policy Iteration")
+plot_history(policy_u_history, policy_iter_agent, "Utility Value History for Policy Iteration") 
